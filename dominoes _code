@@ -1,0 +1,167 @@
+import random  # importing module
+from collections import Counter
+
+
+# main game function
+def start():
+    tot_piece = [[x, y] for x in range(7) for y in range(x, 7)]  # total unique pieces
+    random.shuffle(tot_piece)  # shuffling
+    st_piece = random.sample(tot_piece, 14)  # splitting and assigning 14 random elements to stock
+    for i in st_piece:
+        tot_piece.remove(i)  # removing the stock pieces from total pieces
+    cs_piece = random.sample(tot_piece, 7)  # splitting and assigning 7 random elements to computer
+    for i in cs_piece:
+        tot_piece.remove(i)  # removing the computer pieces from total pieces
+    max_ = max(max(cs_piece), max(tot_piece))  # finding who has the max pair
+    domino_snake = [cs_piece.pop(cs_piece.index(max_)) if max_ in cs_piece
+                    else tot_piece.pop(tot_piece.index(max_))]  # appending the the largest pair to the domino snake
+    sts = [
+        "Status: Computer is about to make a move. Press Enter to continue..." if len(cs_piece) > len(
+            tot_piece)
+        else "Status: It's your turn to make a move. Enter your command."]  # setting status of the player
+    while True:  # entering game loop
+        print("==" * 35)
+        print("Stock size: ", len(st_piece))
+        print("Computer pieces: ", len(cs_piece), "\n")
+        if len(domino_snake) >= 6:
+            print(*domino_snake[:3], "...", *domino_snake[-3:], sep='')
+        else:
+            print(*domino_snake)
+        print("\nYour pieces:")
+        if len(cs_piece) == 0:
+            print("\nStatus: The game is over. The computer won!")
+            break
+        elif len(tot_piece) == 0:
+            print("\nStatus: The game is over. You won!")
+            break
+        elif domino_snake[0][0] == domino_snake[-1][1]:  # checking whether the first and last elements are similar
+            x = Counter(str(domino_snake))  # converting the nested list
+            tie = [i for i in x.elements()]  # to list
+            if tie.count(str(domino_snake[0][0])) == 8:  # counting the  occurrence of last element
+                print("\nStatus: The game is over. It's a draw!")
+                break
+        if len(st_piece) == 0:
+            print("\nStatus: The game is over. It's a draw!")
+            break
+        for a, b in enumerate(tot_piece):
+            print(a + 1, b, sep=":")  # printing the pieces left to the player
+        print()
+        print(*sts)  # printing the turn of the player
+        if len(*sts) != 58:
+            input()
+            for d in range(-len(cs_piece), len(cs_piece)):
+                if d < 0:  # if input -ve insert at the
+                    if cs_piece[d][0] or cs_piece[d][1] in [domino_snake[0][0]]:
+                        if cs_piece[d][0] == domino_snake[0][0]:
+                            cs_piece[d].reverse()
+                            domino_snake.insert(0, cs_piece.pop(d))
+                            break
+                        elif cs_piece[d][1] == domino_snake[0][0]:
+                            domino_snake.insert(0, cs_piece.pop(d))
+                            break
+                if d > -1:  # else insert at last
+                    if cs_piece[d][0] or cs_piece[d][1] in [domino_snake[-1][1]]:
+                        if cs_piece[d][1] == domino_snake[-1][1]:
+                            cs_piece[d].reverse()
+                            domino_snake.append(cs_piece.pop(d))
+                            break
+                        elif cs_piece[d][0] == domino_snake[-1][1]:
+                            domino_snake.append(cs_piece.pop(d))
+                            break
+            else:
+                cs_piece.append(st_piece.pop(random.randrange(0, len(st_piece))))
+            sts = ["Status: It's your turn to make a move. Enter your command."]  # changing the turn
+        else:
+            while True:
+                d = input("enter: ").replace(" ", "")  # getting input from the user
+                if d.isalpha() or (
+                        int(d) not in range(-len(tot_piece), len(tot_piece) + 1)):  # checking whether the given
+                    print("Invalid input. Please try again.")
+                    continue  # input is valid or not
+                elif d == "0":
+                    tot_piece.append(st_piece.pop(random.randrange(0, len(st_piece))))
+                    break  # if 0 skip turn and add element
+                else:  # to the user
+                    if int(d) < 0:  # if input -ve insert at the
+                        if tot_piece[abs(int(d)) - 1][0] in [domino_snake[0][0]] or tot_piece[abs(int(d)) - 1][1] in [domino_snake[0][0]]:
+                            if tot_piece[abs(int(d)) - 1][0] == domino_snake[0][0]:
+                                tot_piece[abs(int(d)) - 1].reverse()
+                            domino_snake.insert(0, tot_piece.pop(abs(int(d)) - 1))
+                            break
+                        else:
+                            print("Illegal move. Please try again.")
+                            continue
+                    else:  # else insert at last
+                        if tot_piece[int(d) - 1][0] in [domino_snake[-1][1]] or tot_piece[int(d) - 1][1] in [domino_snake[-1][1]]:
+                            if tot_piece[int(d) - 1][1] == domino_snake[-1][1]:
+                                tot_piece[int(d) - 1].reverse()
+                            domino_snake.append(tot_piece.pop(int(d) - 1))  # changing the turn
+                            break
+                        else:
+                            print("Illegal move. Please try again.")
+                            continue
+            sts = ["Status: Computer is about to make a move. Press Enter to continue..."]
+
+
+print(r"""
+
+╔════════════════════════════════════════════════════════╗
+║║  ╔═══╗  ╔═══╗ ╔═╗╔═╗ ╔══╗ ╔═╗╔╗  ╔═══╗ ╔═══╗ ╔═══╗   ║║ 
+║║  ╚╗╔╗║  ║╔═╗║ ║║╚╝║║ ╚╣╠╝ ║║╚╗║║ ║╔═╗║ ║╔══╝ ║╔═╗║   ║║ 
+║║   ║║║║  ║║ ║║ ║╔╗╔╗║  ║║  ║╔╗╚╝║ ║║ ║║ ║╚══╗ ║╚══╗   ║║ 
+║║   ║║║║  ║║ ║║ ║║║║║║  ║║  ║║╚╗║║ ║║ ║║ ║╔══╝ ╚══╗║   ║║ 
+║║  ╔╝╚╝║  ║╚═╝║ ║║║║║║ ╔╣╠╗ ║║ ║║║ ║╚═╝║ ║╚══╗ ║╚═╝║   ║║ 
+║║  ╚═══╝  ╚═══╝ ╚╝╚╝╚╝ ╚══╝ ╚╝ ╚═╝ ╚═══╝ ╚═══╝ ╚═══╝   ║║ 
+║║                                                      ║║
+║╚══════════════════════════════════════════════════════╝║
+╚════════════════════════════════════════════════════════╝
+
+              ╔╗     ╔╗╔╗
+ ╔═╗╔╦╗╔═╗╔═╗ ║╚╗╔═╗╔╝║║╚╗╔╦╗
+ ║═╣║╔╝║╩╣║╬╚╗║╔╣║╩╣║╬║║╬║║║║    
+ ╚═╝╚╝ ╚═╝╚══╝╚═╝╚═╝╚═╝╚═╝╠╗║
+                          ╚═╝     ╔══╗ ╔╗╔╗ ╔══╗ ╔═╦╗ ╔╦╗ ╔══╗ ╔╗╔╗
+                                  ╚╗╗║ ║╚╝║ ║╔╗║ ║║║║ ║║║ ║══╣ ║╚╝║
+                                  ╔╩╝║ ║╔╗║ ║╠╣║ ║║║║ ║║║ ╠══║ ║╔╗║
+                                  ╚══╝ ╚╝╚╝ ╚╝╚╝ ╚╩═╝ ╚═╝ ╚══╝ ╚╝╚╝
+
+
+""")
+print(r"""
+  _____    _    _   _        ______    _____     
+ |  __ \  | |  | | | |      |  ____|  / ____|  _ 
+ | |__) | | |  | | | |      | |__    | (___   (_)
+ |  _  /  | |  | | | |      |  __|    \___ \     
+ | | \ \  | |__| | | |____  | |____   ____) |  _ 
+ |_|  \_\  \____/  |______| |______| |_____/  (_)
+                                                 
+#  To make a move, the player has to specify the action they want to take. In this project, 
+#  the actions are represented by integer numbers in the following manner: 
+For example:
+#  -6 : Take the sixth domino and place it on the left side of the snake. 
+#   6 : Take the sixth domino and place it on the right side of the snake.
+#   0 : Take an extra piece from the stock (if it's not empty) and skip a turn.                                               
+#   A player cannot add a domino to the end of the snake if it doesn't contain the matching number
+""")
+
+start()
+
+print("""
+░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+░╔═══════════════════════════════════════════╗░
+░║░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░║░
+░║░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░║░
+░║╔════╗╔╗░╔╗╔═══╗╔═╗░╔╗╔╗╔═╗╔╗░░╔╗╔═══╗╔╗░╔╗║░
+░║║╔╗╔╗║║║░║║║╔═╗║║║╚╗║║║║║╔╝║╚╗╔╝║║╔═╗║║║░║║║░
+░║╚╝║║╚╝║╚═╝║║║░║║║╔╗╚╝║║╚╝╝░╚╗╚╝╔╝║║░║║║║░║║║░
+░║░░║║░░║╔═╗║║╚═╝║║║╚╗║║║╔╗║░░╚╗╔╝░║║░║║║║░║║║░
+░║░░║║░░║║░║║║╔═╗║║║░║║║║║║╚╗░░║║░░║╚═╝║║╚═╝║║░
+░║░░╚╝░░╚╝░╚╝╚╝░╚╝╚╝░╚═╝╚╝╚═╝░░╚╝░░╚═══╝╚═══╝║░
+░║░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░║░
+░║░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░║░
+░╚═══════════════════════════════════════════╝░
+░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+
+""")
+
+
